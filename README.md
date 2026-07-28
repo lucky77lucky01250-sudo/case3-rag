@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 社内文書検索AI（RAG） — case3-rag
 
-## Getting Started
+社内文書（PDF）を読み込ませ、質問に**出典付き**で回答するRAGアプリ。文書に無い内容は「該当する情報が見つかりません」と答え、ハルシネーションを抑制する。
 
-First, run the development server:
+AIエンジニア講座 案件3の成果物（架空クライアント「株式会社テックブリッジ」向けMVP）。
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 技術構成
+- **UI/API**: Next.js (App Router) + Vercel
+- **DB**: Supabase（東京リージョン）+ pgvector
+- **Embedding**: OpenAI `text-embedding-3-small`（1536次元）
+- **回答生成**: Anthropic Claude（Sonnet）
+- **認証**: Supabase Auth + 社内メールドメイン制限
+
+## パイプライン
+```
+取り込み: PDF → テキスト抽出 → チャンキング → Embedding → pgvector保存
+検索:     質問 → Embedding → ベクトル類似検索(上位5) → Claudeで回答生成 → 出典付き表示
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## セットアップ
+1. 依存インストール
+   ```bash
+   npm install
+   ```
+2. Supabase（case3専用の新規プロジェクト・東京リージョン）を作成し、`supabase/schema.sql` をSQL Editorで実行
+3. 環境変数を設定
+   ```bash
+   cp .env.local.example .env.local
+   # .env.local に各キーを記入
+   ```
+4. 文書を取り込み
+   ```bash
+   npm run ingest
+   ```
+5. 開発サーバー起動
+   ```bash
+   npm run dev
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ディレクトリ
+- `lib/` … 共通ロジック（config / types / chunk / embedding / supabase）
+- `supabase/schema.sql` … pgvectorスキーマ＋類似検索RPC
+- `scripts/` … 取り込み・検証スクリプト
+- `data/` … ダミー文書5本＋精度検証用CSV（12問）
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 開発（Worktree並列）
+機能ごとにgit worktreeで並列開発している。
+- `rag-embeddings` … 取り込みパイプライン
+- `rag-search-api` … 検索＆回答API
+- `rag-ui` … チャットUI＋認証
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+> ⚠️ 本リポジトリの文書はすべてRAG検証用のサンプルであり、実在の規程ではありません。
