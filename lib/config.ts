@@ -27,8 +27,8 @@ export const config = {
   },
   anthropic: {
     apiKey: () => required("ANTHROPIC_API_KEY"),
-    /** 回答生成モデル */
-    model: "claude-sonnet-4-5",
+    /** 回答生成モデル（Step2設計: Claude Sonnet系） */
+    model: "claude-sonnet-5",
   },
   /** 認証を許可する社内メールドメイン（Step2要件: 社内ドメイン制限） */
   allowedEmailDomain: process.env.NEXT_PUBLIC_ALLOWED_EMAIL_DOMAIN ?? "techbridge.co.jp",
