@@ -16,12 +16,12 @@ create table if not exists public.documents (
   created_at timestamptz not null default now()
 );
 
--- 3) ベクトル類似検索用インデックス（コサイン距離）
---    件数が少ないうちは ivfflat の lists は小さめでよい
+-- 3) ベクトル類似検索用インデックス（コサイン距離）— HNSW
+--    ※ ivfflat は probes=1 が既定で、少量データやクラスタ分割次第で
+--      最近傍を取りこぼす（実測で上位チャンクが欠落）。HNSWは既定で高再現率のため採用。
 create index if not exists documents_embedding_idx
   on public.documents
-  using ivfflat (embedding vector_cosine_ops)
-  with (lists = 10);
+  using hnsw (embedding vector_cosine_ops);
 
 -- 4) 類似検索RPC：質問ベクトルに近いチャンクを上位N件返す
 --    similarity = 1 - コサイン距離（1に近いほど類似）

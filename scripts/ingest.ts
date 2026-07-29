@@ -6,7 +6,7 @@
  *   npm run ingest          # 本番: 埋め込み→Supabaseへ保存（キー必須）
  *   npm run ingest -- --dry # ドライラン: チャンク分割だけ確認（キー不要）
  */
-import "dotenv/config";
+import "../lib/loadEnv";
 import { readdirSync, readFileSync } from "fs";
 import path from "path";
 import { pdfToChunks } from "../lib/pdf";

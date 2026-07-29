@@ -5,7 +5,7 @@
  * 前提: .env.local にキー設定済み ＋ `npm run ingest` で取り込み済み。
  *   npm run verify
  */
-import "dotenv/config";
+import "../lib/loadEnv";
 import { readFileSync } from "fs";
 import path from "path";
 import { searchChunks } from "../lib/search";
