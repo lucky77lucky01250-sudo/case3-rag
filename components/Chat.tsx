@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { getSupabaseBrowser } from "@/lib/supabaseClient";
 import type { SearchResponse, Citation } from "@/lib/types";
 
 interface QA {
@@ -37,9 +38,14 @@ export default function Chat({ onSignOut, email }: { onSignOut: () => void; emai
     requestAnimationFrame(() => listEndRef.current?.scrollIntoView({ behavior: "smooth" }));
 
     try {
+      // 現在のセッションのアクセストークンを付与（サーバー側認証で検証される）
+      const { data: { session } } = await getSupabaseBrowser().auth.getSession();
       const res = await fetch("/api/search", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
         body: JSON.stringify({ question: q }),
       });
       if (!res.ok) {

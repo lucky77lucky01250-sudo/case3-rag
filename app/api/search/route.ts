@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
 import { searchChunks } from "@/lib/search";
 import { generateAnswer } from "@/lib/anthropic";
+import { getAuthedUser } from "@/lib/auth";
 import type { SearchRequest, SearchResponse } from "@/lib/types";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
+  // サーバー側認証: 有効な社内ユーザーのトークンが無ければ拒否（API直叩き対策）
+  const user = await getAuthedUser(req);
+  if (!user) {
+    return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
+  }
+
   let body: SearchRequest;
   try {
     body = await req.json();
