@@ -4,6 +4,9 @@
 
 AIエンジニア講座 案件3の成果物（架空クライアント「株式会社テックブリッジ」向けMVP）。
 
+**🔗 公開URL: https://case3-rag.vercel.app**
+※認証を社内メールドメイン（`@techbridge.co.jp`）に限定しているため、公開URLはログイン画面まで表示されます（機能デモはローカル環境で実施）。バックエンド（`/api/search`）は本番環境でも動作確認済み。
+
 ## 技術構成
 - **UI/API**: Next.js (App Router) + Vercel
 - **DB**: Supabase（東京リージョン）+ pgvector
